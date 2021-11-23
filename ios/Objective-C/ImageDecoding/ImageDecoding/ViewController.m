@@ -68,11 +68,14 @@
     [self.view addSubview:loadingView];
 }
 
+//MARK: decodeAction
 - (void)decodeAction
 {
     [decodeButton setEnabled:NO];
    
     [loadingView startAnimating];
+    
+    // Method 1:decodeImage with image
     UIImage *selectedImage = selectedImageV.image;
 
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
@@ -81,8 +84,78 @@
         NSArray<iTextResult*>* results = [self->_barcodeReader decodeImage:selectedImage withTemplate:@"" error:&error];
         [self handleResults:results err:error];
     });
+    
+    // Method 2:decodeImage With base64String
+//    UIImage *selectedImage = selectedImageV.image;
+//
+//    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//        NSError* error = [[NSError alloc] init];
+//        // image decode
+//        NSArray<iTextResult*>* results = [self->_barcodeReader decodeBase64:[self encodeImageWithBase64:selectedImage] withTemplate:@"" error:&error];
+//
+//        [self handleResults:results err:error];
+//    });
+   
+    // Method 3:decodeImage with buffer
+//    UIImage *selectedImage = selectedImageV.image;
+//
+//    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//        NSError* error = [[NSError alloc] init];
+//        // image decode
+//        NSArray<iTextResult*>* results = [self dbrDecodeBufferWithImage:selectedImage];
+//
+//        [self handleResults:results err:error];
+//    });
 }
 
+/// encode image with base64
+- (NSString *)encodeImageWithBase64:(UIImage *)image
+{
+    NSData *imageData = UIImagePNGRepresentation(image);
+    
+    return [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+}
+
+
+/// barcode reader decodeImage with buffer
+- (NSArray<iTextResult*>* _Nullable)dbrDecodeBufferWithImage:(UIImage *)image
+{
+    size_t width = CGImageGetWidth(image.CGImage);
+    size_t height = CGImageGetHeight(image.CGImage);
+    size_t stride = CGImageGetBytesPerRow(image.CGImage);
+    size_t bpp = CGImageGetBitsPerPixel(image.CGImage);
+    
+    CGDataProviderRef provider = CGImageGetDataProvider(image.CGImage);
+    NSData *buffer = (__bridge_transfer NSData *)CGDataProviderCopyData(provider);
+    
+    EnumImagePixelFormat type;
+    
+    switch (bpp) {
+        case 1:
+            type = EnumImagePixelFormatBinary;
+            break;
+        case 8:
+            type = EnumImagePixelFormatGrayScaled;
+            break;
+        case 32:
+            type = EnumImagePixelFormatARGB_8888;
+            break;
+        case 48:
+            type = EnumImagePixelFormatRGB_161616;
+            break;
+        case 64:
+            type = EnumImagePixelFormatARGB_16161616;
+            break;
+        default:
+            type = EnumImagePixelFormatRGB_888;
+            break;
+    }
+    
+    NSError *error = nil;
+    return [self.barcodeReader decodeBuffer:buffer withWidth:width height:height stride:stride format:type templateName:@"" error:&error];
+}
+
+//MARK: selectPic
 - (void)selectPic
 {
     [selectPictureButton setEnabled:NO];
@@ -100,19 +173,11 @@
     _barcodeReader = [[DynamsoftBarcodeReader alloc] initLicenseFromDLS:dls verificationDelegate:self];
     
     NSError *error = [[NSError alloc] init];
-    // LocalizationModes       : LocalizationModes are all enabled as default. Barcode reader will automatically switch between the modes and try decoding continuously until timeout or the expected barcode count is reached. Please manually update the enabled modes list or change the expected barcode count to promote the barcode scanning speed.
-    // Read more about localization mode members: https://www.dynamsoft.com/barcode-reader/parameters/enum/parameter-mode-enums.html?ver=latest#localizationmode
-    // BarcodeFormatIds        : The simpler barcode format, the faster decoding speed.
-    // ExpectedBarcodesCount   : The barcode scanner will try to find 512 barcodes. If the result count does not reach the expected amount, the barcode scanner will try other algorithms in the setting list to find enough barcodes.
-    // DeblurModes             : DeblurModes are all enabled as default. Barcode reader will automatically switch between the modes and try decoding continuously until timeout or the expected barcode count is reached. Please manually update the enabled modes list or change the expected barcode count to promote the barcode scanning speed.
-    // Read more about deblur mode members: https://www.dynamsoft.com/barcode-reader/parameters/enum/parameter-mode-enums.html#deblurmode
-    // ScaleUpModes            : It is a parameter to control the process for scaling up an image used for detecting barcodes with small module size.
-    // GrayscaleTransformationModes : The image will be transformed into inverted grayscale with GTM_INVERTED mode.
-    // DPMCodeReadingModes     : It is a parameter to control how to read direct part mark (DPM) barcodes.
-    
-    NSString* json = @"{\"ImageParameter\": {\"BarcodeFormatIds\": [\"BF_ALL\"],\"ExpectedBarcodesCount\": 5,\"RegionPredetectionModes\": [{\"Mode\": \"RPM_GENERAL\"}],\"DPMCodeReadingModes\":[{\"Mode\":\"DPMCRM_GENERAL\"}],\"LocalizationModes\": [{\"Mode\": \"LM_CONNECTED_BLOCKS\"},{\"Mode\": \"LM_SCAN_DIRECTLY\",\"ScanDirection\": 0},{\"Mode\": \"LM_STATISTICS\"},{\"Mode\": \"LM_LINES\"},{\"Mode\": \"LM_STATISTICS_MARKS\"},{\"Mode\": \"LM_STATISTICS_POSTAL_CODE\"}],\"BinarizationModes\": [{\"BlockSizeX\": 0,\"BlockSizeY\": 0,\"EnableFillBinaryVacancy\": 1,\"Mode\": \"BM_LOCAL_BLOCK\",\"ThresholdCompensation\": 10},{\"EnableFillBinaryVacancy\": 0,\"Mode\": \"BM_LOCAL_BLOCK\",\"ThresholdCompensation\": 15}],\"DeblurModes\": [{\"Mode\": \"DM_DIRECT_BINARIZATION\"},{\"Mode\": \"DM_THRESHOLD_BINARIZATION\"},{\"Mode\": \"DM_GRAY_EQUALIZATION\"},{\"Mode\": \"DM_SMOOTHING\"},{\"Mode\": \"DM_MORPHING\"},{\"Mode\": \"DM_DEEP_ANALYSIS\"},{\"Mode\": \"DM_SHARPENING\"}],\"GrayscaleTransformationModes\": [{\"Mode\": \"GTM_ORIGINAL\"},{\"Mode\": \"GTM_INVERTED\"}],\"ScaleUpModes\": [{\"Mode\": \"SUM_AUTO\"}],\"Name\":\"ReadRateFirstSettings\",\"Timeout\":30000}}";
+   
+    iPublicRuntimeSettings *setting = [_barcodeReader getRuntimeSettings:&error];
+    setting.expectedBarcodesCount = 5;
 
-    [_barcodeReader initRuntimeSettingsWithString:json conflictMode:EnumConflictModeOverwrite error:&error];
+    [_barcodeReader updateRuntimeSettings:setting error:&error];
    
 }
 
@@ -120,7 +185,7 @@
 - (void)DLSLicenseVerificationCallback:(bool)isSuccess error:(NSError *)error
 {
     if (isSuccess) {
-        NSLog(@"verify success!");
+        NSLog(@"DLS verify success!");
     }
     NSString* msg = @"";
     if(error != nil)

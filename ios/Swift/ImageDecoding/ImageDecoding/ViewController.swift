@@ -60,17 +60,80 @@ class ViewController: UIViewController, DMDLSLicenseVerificationDelegate, UINavi
         self.view.addSubview(loadingView)
     }
     
+    //MARK: decodeAction
     @objc func decodeAction() {
         self.decodeButton?.isEnabled = false
         self.loadingView.startAnimating()
+        
+        // Method 1:decodeImage with image
         let image = self.selectedImageV.image
-       
+
         DispatchQueue.global().async {
             let results = try! self.barcodeReader.decode(image!, withTemplate: "")
             self.handleResults(results: results)
         }
+        
+        // Method 2:decodeImage With base64String
+//        let image = self.selectedImageV.image
+//
+//        DispatchQueue.global().async {
+//            let results = try! self.barcodeReader.decodeBase64(self.encodeImageWithBase64(image: image!), withTemplate: "")
+//            self.handleResults(results: results)
+//        }
+        
+        // Method 3:decodeImage with buffer
+        
+//        let image = self.selectedImageV.image
+//
+//        DispatchQueue.global().async {
+//            let results = self.dbrDecodeBufferWithImage(image: image!)
+//            self.handleResults(results: results)
+//        }
+        
     }
     
+    /// encode image with base64
+    func encodeImageWithBase64(image : UIImage) -> String {
+        let imageData = image.pngData()
+        
+        return (imageData?.base64EncodedString())!
+    }
+    
+    /// barcode reader decodeImage with buffer
+    func dbrDecodeBufferWithImage(image : UIImage) -> Array<iTextResult> {
+        
+        let width = image.cgImage?.width
+        let height = image.cgImage?.height
+        let stride = image.cgImage?.bytesPerRow
+        let bpp = image.cgImage?.bitsPerPixel
+        
+        let provider = image.cgImage?.dataProvider
+        let buffer : Data =  provider?.data as! Data
+        
+        
+        var type : EnumImagePixelFormat = EnumImagePixelFormat.RGB_888
+        
+        switch bpp {
+        case 1:
+            type = EnumImagePixelFormat.binary
+        case 8:
+            type = EnumImagePixelFormat.grayScaled
+        case 32:
+            type = EnumImagePixelFormat.ARGB_8888
+        case 48:
+            type = EnumImagePixelFormat.RGB_161616
+        case 64:
+            type = EnumImagePixelFormat.ARGB_16161616
+        default:
+            type = EnumImagePixelFormat.RGB_888
+        }
+      
+        
+  
+        return try! barcodeReader.decodeBuffer(buffer, withWidth: width!, height: height!, stride: stride!, format: type, templateName: "")
+    }
+    
+    //MARK: selectPic
     @objc func selectPic() {
         self.selectPictureButton?.isEnabled = false
         self .getAlertActionType(1)
@@ -84,8 +147,9 @@ class ViewController: UIViewController, DMDLSLicenseVerificationDelegate, UINavi
         
         var error : NSError? = NSError()
         
-        let json = "{\"ImageParameter\": {\"BarcodeFormatIds\": [\"BF_ALL\"],\"ExpectedBarcodesCount\": 5,\"RegionPredetectionModes\": [{\"Mode\": \"RPM_GENERAL\"}],\"DPMCodeReadingModes\":[{\"Mode\":\"DPMCRM_GENERAL\"}],\"LocalizationModes\": [{\"Mode\": \"LM_CONNECTED_BLOCKS\"},{\"Mode\": \"LM_SCAN_DIRECTLY\",\"ScanDirection\": 0},{\"Mode\": \"LM_STATISTICS\"},{\"Mode\": \"LM_LINES\"},{\"Mode\": \"LM_STATISTICS_MARKS\"},{\"Mode\": \"LM_STATISTICS_POSTAL_CODE\"}],\"BinarizationModes\": [{\"BlockSizeX\": 0,\"BlockSizeY\": 0,\"EnableFillBinaryVacancy\": 1,\"Mode\": \"BM_LOCAL_BLOCK\",\"ThresholdCompensation\": 10},{\"EnableFillBinaryVacancy\": 0,\"Mode\": \"BM_LOCAL_BLOCK\",\"ThresholdCompensation\": 15}],\"DeblurModes\": [{\"Mode\": \"DM_DIRECT_BINARIZATION\"},{\"Mode\": \"DM_THRESHOLD_BINARIZATION\"},{\"Mode\": \"DM_GRAY_EQUALIZATION\"},{\"Mode\": \"DM_SMOOTHING\"},{\"Mode\": \"DM_MORPHING\"},{\"Mode\": \"DM_DEEP_ANALYSIS\"},{\"Mode\": \"DM_SHARPENING\"}],\"GrayscaleTransformationModes\": [{\"Mode\": \"GTM_ORIGINAL\"},{\"Mode\": \"GTM_INVERTED\"}],\"ScaleUpModes\": [{\"Mode\": \"SUM_AUTO\"}],\"Name\":\"ReadRateFirstSettings\",\"Timeout\":30000}}"
-        barcodeReader.initRuntimeSettings(with: json, conflictMode: .overwrite, error: &error)
+        let settings = try? barcodeReader.getRuntimeSettings()
+        settings!.expectedBarcodesCount = 5
+        barcodeReader.update(settings!, error: &error)
     }
     
     //MARK: DMDLSLicenseVerificationDelegate

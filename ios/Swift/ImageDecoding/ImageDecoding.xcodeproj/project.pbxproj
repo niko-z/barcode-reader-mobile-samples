@@ -12,9 +12,6 @@
 		684D89892742394C00A2D1E6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 684D89872742394C00A2D1E6 /* Main.storyboard */; };
 		684D898B2742394E00A2D1E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 684D898A2742394E00A2D1E6 /* Assets.xcassets */; };
 		684D898E2742394E00A2D1E6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 684D898C2742394E00A2D1E6 /* LaunchScreen.storyboard */; };
-		684D899A27423A9F00A2D1E6 /* DynamsoftCameraEnhancer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 684D899827423A9F00A2D1E6 /* DynamsoftCameraEnhancer.framework */; };
-		684D899E27423C8400A2D1E6 /* DynamsoftBarcodeReader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 684D899727423A9F00A2D1E6 /* DynamsoftBarcodeReader.framework */; };
-		684D899F27423C8400A2D1E6 /* DynamsoftBarcodeReader.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 684D899727423A9F00A2D1E6 /* DynamsoftBarcodeReader.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		684D89A227423C9900A2D1E6 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 684D89A127423C9900A2D1E6 /* libc++.tbd */; };
 		684D89CA2744EDCB00A2D1E6 /* DynamsoftDefaultImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 684D89C92744EDCB00A2D1E6 /* DynamsoftDefaultImage.png */; };
 /* End PBXBuildFile section */
@@ -26,7 +23,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				684D899F27423C8400A2D1E6 /* DynamsoftBarcodeReader.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -41,8 +37,6 @@
 		684D898A2742394E00A2D1E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		684D898D2742394E00A2D1E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		684D898F2742394E00A2D1E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		684D899727423A9F00A2D1E6 /* DynamsoftBarcodeReader.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DynamsoftBarcodeReader.framework; sourceTree = "<group>"; };
-		684D899827423A9F00A2D1E6 /* DynamsoftCameraEnhancer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DynamsoftCameraEnhancer.framework; sourceTree = "<group>"; };
 		684D899D27423BC200A2D1E6 /* DBRSample_Bridging_Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DBRSample_Bridging_Header.h; sourceTree = "<group>"; };
 		684D89A127423C9900A2D1E6 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		684D89C92744EDCB00A2D1E6 /* DynamsoftDefaultImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DynamsoftDefaultImage.png; sourceTree = "<group>"; };
@@ -54,8 +48,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				684D89A227423C9900A2D1E6 /* libc++.tbd in Frameworks */,
-				684D899E27423C8400A2D1E6 /* DynamsoftBarcodeReader.framework in Frameworks */,
-				684D899A27423A9F00A2D1E6 /* DynamsoftCameraEnhancer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,8 +89,6 @@
 		684D899527423A4600A2D1E6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				684D899727423A9F00A2D1E6 /* DynamsoftBarcodeReader.framework */,
-				684D899827423A9F00A2D1E6 /* DynamsoftCameraEnhancer.framework */,
 				684D89A127423C9900A2D1E6 /* libc++.tbd */,
 			);
 			path = Frameworks;
