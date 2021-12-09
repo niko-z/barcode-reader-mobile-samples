@@ -128,6 +128,9 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
             NSLog(@"single barcode!");
             self.selectPictureButton.hidden = YES;
             [self.barcodeReader updateRuntimeSettings:EnumPresetTemplateVideoSingleBarcode];
+            
+            NSError *scanRegionError = nil;
+            [self.dce setScanRegion:nil error:&scanRegionError];
             break;
         }
         case EnumTemplateTypeSpeedFirst:
@@ -152,6 +155,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
                 scanRegion.regionBottom = 70;
                 scanRegion.regionLeft = 15;
                 scanRegion.regionRight = 85;
+                scanRegion.regionMeasuredByPercentage = 1;
                 [self.dce setScanRegion:scanRegion error:&scanRegionError];
                 
             } else if (self.currentDecodeStyle == DecodeStyle_Image) {
@@ -166,6 +170,9 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
                 runtimeSettings.expectedBarcodesCount = 0;
                 runtimeSettings.scaleDownThreshold = 2300;
                 [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
+                
+                NSError *scanRegionError = nil;
+                [self.dce setScanRegion:nil error:&scanRegionError];
                 
             }
             break;
@@ -188,6 +195,9 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
                 runtimeSettings.timeout = 5000;
                 [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
                 
+                NSError *scanRegionError = nil;
+                [self.dce setScanRegion:nil error:&scanRegionError];
+                
             } else if (self.currentDecodeStyle == DecodeStyle_Image) {
                 NSLog(@"image read rate first!");
                 [self.barcodeReader updateRuntimeSettings:EnumPresetTemplateImageReadRateFirst];
@@ -201,6 +211,9 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
                 runtimeSettings.scaleDownThreshold = 10000;
                 [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
                 
+                NSError *scanRegionError = nil;
+                [self.dce setScanRegion:nil error:&scanRegionError];
+                
             }
             break;
         }
@@ -213,6 +226,9 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
             NSLog(@"accuracy first!");
             self.selectPictureButton.hidden = YES;
          
+            NSError *resetError = nil;
+            [self.barcodeReader resetRuntimeSettings:&resetError];
+            
             NSError *settingsError = nil;
             iPublicRuntimeSettings *runtimeSettings = [self.barcodeReader getRuntimeSettings:&settingsError];
             runtimeSettings.barcodeFormatIds = EnumBarcodeFormatALL;
@@ -221,11 +237,13 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
             runtimeSettings.minResultConfidence = 30;
             runtimeSettings.minBarcodeTextLength = 6;
             [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
-            
             [self.barcodeReader setEnableResultVerification:true];
             
             NSError *dceError = nil;
             [self.dce enableFeatures:EnumFRAME_FILTER error:&dceError];
+            
+            NSError *scanRegionError = nil;
+            [self.dce setScanRegion:nil error:&scanRegionError];
             
             break;
         }
