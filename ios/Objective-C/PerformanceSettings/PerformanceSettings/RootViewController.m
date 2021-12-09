@@ -120,7 +120,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
 }
 
 //MARK: switchTemplate
-- (void)dbrSwithcTemplate
+- (void)dbrSwitchcTemplate
 {
     switch (self.currentTemplateType) {
         case EnumTemplateTypeSingleBarcode:
@@ -136,9 +136,37 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
             if (self.currentDecodeStyle == DecodeStyle_Vedio) {
                 NSLog(@"vedio speed first!");
                 [self.barcodeReader updateRuntimeSettings:EnumPresetTemplateVideoSpeedFirst];
+                
+                NSError *settingsError = nil;
+                iPublicRuntimeSettings *runtimeSettings = [self.barcodeReader getRuntimeSettings:&settingsError];
+                runtimeSettings.barcodeFormatIds = EnumBarcodeFormatALL;
+                runtimeSettings.barcodeFormatIds_2 = EnumBarcodeFormat2NULL;
+                runtimeSettings.expectedBarcodesCount = 0;
+                runtimeSettings.scaleDownThreshold = 2300;
+                runtimeSettings.timeout = 500;
+                [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
+                
+                NSError *scanRegionError = nil;
+                iRegionDefinition *scanRegion = [[iRegionDefinition alloc] init];
+                scanRegion.regionTop = 30;
+                scanRegion.regionBottom = 70;
+                scanRegion.regionLeft = 15;
+                scanRegion.regionRight = 85;
+                [self.dce setScanRegion:scanRegion error:&scanRegionError];
+                
             } else if (self.currentDecodeStyle == DecodeStyle_Image) {
                 NSLog(@"image speed first!");
                 [self.barcodeReader updateRuntimeSettings:EnumPresetTemplateImageSpeedFirst];
+                
+             
+                NSError *settingsError = nil;
+                iPublicRuntimeSettings *runtimeSettings = [self.barcodeReader getRuntimeSettings:&settingsError];
+                runtimeSettings.barcodeFormatIds = EnumBarcodeFormatALL;
+                runtimeSettings.barcodeFormatIds_2 = EnumBarcodeFormat2NULL;
+                runtimeSettings.expectedBarcodesCount = 0;
+                runtimeSettings.scaleDownThreshold = 2300;
+                [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
+                
             }
             break;
         }
@@ -149,9 +177,30 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
             if (self.currentDecodeStyle == DecodeStyle_Vedio) {
                 NSLog(@"vedio read rate first!");
                 [self.barcodeReader updateRuntimeSettings:EnumPresetTemplateVideoReadRateFirst];
+                
+              
+                NSError *settingsError = nil;
+                iPublicRuntimeSettings *runtimeSettings = [self.barcodeReader getRuntimeSettings:&settingsError];
+                runtimeSettings.barcodeFormatIds = EnumBarcodeFormatALL;
+                runtimeSettings.barcodeFormatIds_2 = EnumBarcodeFormat2NULL;
+                runtimeSettings.expectedBarcodesCount = 512;
+                runtimeSettings.scaleDownThreshold = 2300;
+                runtimeSettings.timeout = 5000;
+                [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
+                
             } else if (self.currentDecodeStyle == DecodeStyle_Image) {
                 NSLog(@"image read rate first!");
                 [self.barcodeReader updateRuntimeSettings:EnumPresetTemplateImageReadRateFirst];
+                
+         
+                NSError *settingsError = nil;
+                iPublicRuntimeSettings *runtimeSettings = [self.barcodeReader getRuntimeSettings:&settingsError];
+                runtimeSettings.barcodeFormatIds = EnumBarcodeFormatALL;
+                runtimeSettings.barcodeFormatIds_2 = EnumBarcodeFormat2NULL;
+                runtimeSettings.expectedBarcodesCount = 512;
+                runtimeSettings.scaleDownThreshold = 10000;
+                [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
+                
             }
             break;
         }
@@ -163,17 +212,21 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
              */
             NSLog(@"accuracy first!");
             self.selectPictureButton.hidden = YES;
+         
+            NSError *settingsError = nil;
+            iPublicRuntimeSettings *runtimeSettings = [self.barcodeReader getRuntimeSettings:&settingsError];
+            runtimeSettings.barcodeFormatIds = EnumBarcodeFormatALL;
+            runtimeSettings.barcodeFormatIds_2 = EnumBarcodeFormat2NULL;
+            runtimeSettings.deblurModes = @[@(EnumDeblurModeBasedOnLocBin), @(EnumDeblurModeThresholdBinarization)];
+            runtimeSettings.minResultConfidence = 30;
+            runtimeSettings.minBarcodeTextLength = 6;
+            [self.barcodeReader updateRuntimeSettings:runtimeSettings error:&settingsError];
             
-            NSError *error = [[NSError alloc] init];
-            iPublicRuntimeSettings *settings = [_barcodeReader getRuntimeSettings:&error];
+            [self.barcodeReader setEnableResultVerification:true];
             
-            settings.expectedBarcodesCount = 1;
-            settings.barcodeFormatIds = EnumBarcodeFormatONED;
-            settings.minBarcodeTextLength = 6;
-
-            [_barcodeReader updateRuntimeSettings:settings error:&error];
-            NSLog(@"accuracy error:%@", error);
-            [_barcodeReader setEnableResultVerification:true];
+            NSError *dceError = nil;
+            [self.dce enableFeatures:EnumFRAME_FILTER error:&dceError];
+            
             break;
         }
 
@@ -351,7 +404,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
         
         self.currentTemplateType = EnumTemplateTypeAccuracyFirst;
     }
-    [self dbrSwithcTemplate];
+    [self dbrSwitchcTemplate];
 }
 
 /// handle question
@@ -397,7 +450,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
     [self.barcodeReader setDBRTextResultDelegate:self userData:nil];
     
     // set template
-    [self dbrSwithcTemplate];
+    [self dbrSwitchcTemplate];
 }
 
 - (void)configureDCE
@@ -531,7 +584,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
               completion:^{
             // change currentDecodeStyle to vedio
             weakSelf.currentDecodeStyle = DecodeStyle_Vedio;
-            [weakSelf dbrSwithcTemplate];
+            [weakSelf dbrSwitchcTemplate];
             [weakSelf switchScanStyle];
             
               }];
@@ -544,7 +597,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
         [self showResult:@"No result" msg:msg  acTitle:@"OK" completion:^{
             // change currentDecodeStyle to vedio
             weakSelf.currentDecodeStyle = DecodeStyle_Vedio;
-            [weakSelf dbrSwithcTemplate];
+            [weakSelf dbrSwitchcTemplate];
             [weakSelf switchScanStyle];
         }];
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -570,7 +623,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
     
     // change currentDecodeStyle to image
     self.currentDecodeStyle = DecodeStyle_Image;
-    [self dbrSwithcTemplate];
+    [self dbrSwitchcTemplate];
     [self switchScanStyle];
     
     [self.selectPictureButton setEnabled:YES];
@@ -640,7 +693,7 @@ typedef NS_ENUM(NSInteger, EnumTemplateType){
 {
     // should switch to decodeStyle_vedio
     self.currentDecodeStyle = DecodeStyle_Vedio;
-    [self dbrSwithcTemplate];
+    [self dbrSwitchcTemplate];
     [self switchScanStyle];
     
     [picker dismissViewControllerAnimated:YES completion:nil];

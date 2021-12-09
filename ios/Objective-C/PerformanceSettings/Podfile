@@ -8,4 +8,5 @@ target 'PerformanceSettings' do
   # Pods for PerformanceSettings
   pod 'DynamsoftCameraEnhancer'
   pod 'DynamsoftBarcodeReader'
+
 end
